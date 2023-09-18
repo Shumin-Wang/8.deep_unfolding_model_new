@@ -6,8 +6,8 @@ def generateState():
     theta_t = [30]
     # theta_r1 = np.linspace(10, 30, 3)
     # theta_r2 = np.linspace(40, 60, 3)
-    theta_r1 = [20]
-    theta_r2 = [50]
+    theta_r1 = [10]
+    theta_r2 = [60]
     # theta_r1 = np.linspace(10, 12, 5)
     # theta_r2 = np.linspace(40, 42, 5)
     x_train = np.zeros([len(theta_t) * len(theta_r1) * len(theta_r2), 3])

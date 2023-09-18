@@ -43,10 +43,10 @@ class typicalCommSym(RacianFading):
 
         return tx_arr
 
-    def generatePositionRxArr(self,lr):
+    def generatePositionRxArr(self,theta_r):
         rx_arr = np.zeros([3, self.Nr])
-        rx_arr[0,:] = self.D - self.dist
-        rx_arr[2,:] =  lr + (np.linspace(1,self.Nr,self.Nr) * self.dr - (self.Nr + 1) * self.dr / 2)
+        rx_arr[0,:] = (self.D - self.dist)*np.sin(theta_r*np.pi/180)
+        rx_arr[2,:] = (self.D - self.dist)*np.cos(theta_r*np.pi/180)
         return rx_arr
 
     def generatePositionRISArr(self):
@@ -68,17 +68,17 @@ class typicalCommSym(RacianFading):
 
         return dist_tx_ris
 
-    def generateDistTXRX(self, lt, lr):
+    def generateDistTXRX(self, lt, theta_r):
         dist_tx_rx = np.zeros([self.Nr, self.Nt])
         tx_arr = self.generatePositionTxArr(lt)
-        rx_arr = self.generatePositionRxArr(lr)
+        rx_arr = self.generatePositionRxArr(theta_r)
         for i1 in range(self.Nr):
             for j1 in range(self.Nt):
                 dist_tx_rx[i1, j1] = np.linalg.norm(rx_arr[:, i1]-tx_arr[:, j1])
         return dist_tx_rx
 
-    def generateDistRXRIS(self,lr):
-        rx_arr = self.generatePositionRxArr(lr)
+    def generateDistRXRIS(self,theta_r):
+        rx_arr = self.generatePositionRxArr(theta_r)
         ris_arr = self.generatePositionRISArr()
         dist_rx_ris = np.zeros([self.Nr, self.Nris])
         for i in range(self.Nr):
@@ -87,8 +87,8 @@ class typicalCommSym(RacianFading):
 
         return dist_rx_ris
 
-    def generateChannelTXRX(self,lt,lr, dist_mid_tx_rx):
-        dist_tx_rx = self.generateDistTXRX(lt, lr)
+    def generateChannelTXRX(self,lt,theta_r, dist_mid_tx_rx):
+        dist_tx_rx = self.generateDistTXRX(lt, theta_r)
         FSPLDir = self.generateFSPLDir(self.PLExponent, dist_mid_tx_rx)
         Hdir = np.sqrt(1 / FSPLDir) * self.generateModel(dist_tx_rx)
 
@@ -148,16 +148,16 @@ class MyRacianFading(typicalCommSym):
         print("theta_r2==>",theta_r2)
 
         self.lt = dist / np.tan(theta_t*np.pi/180)
-        self.lr1 = (D - dist) / np.tan(theta_r1/180*np.pi)
-        self.lr2 = (D - dist) / np.tan(theta_r2/180*np.pi)
+        self.lr1 = (D - dist) / np.cos(theta_r1/180*np.pi)
+        self.lr2 = (D - dist) / np.cos(theta_r2/180*np.pi)
         # self.lr = self.lr1 / 2 + self.lr2 / 2
 
-        self.dist_mid_tx_rx1 = np.sqrt(D ** 2 + (self.lt - self.lr1) ** 2)
-        self.dist_mid_tx_rx2 = np.sqrt(D ** 2 + (self.lt - self.lr2) ** 2)
+        self.dist_mid_tx_rx1 = np.sqrt((self.dist+(self.D-self.dist)*np.sin(theta_r1/180*np.pi)) ** 2 + (self.lt - self.lr1) ** 2)
+        self.dist_mid_tx_rx2 = np.sqrt((self.dist+(self.D-self.dist)*np.sin(theta_r2/180*np.pi)) ** 2 + (self.lt - self.lr2) ** 2)
 
     def generateAllChannel(self):
-        dist_tx_rx1 = self.generateDistTXRX(self.lt, self.lr1)
-        dist_tx_rx2 = self.generateDistTXRX(self.lt, self.lr2)
+        dist_tx_rx1 = self.generateDistTXRX(self.lt, self.theta_r1)
+        dist_tx_rx2 = self.generateDistTXRX(self.lt, self.theta_r2)
 
         FSPLDir1 = self.generateFSPLDir(self.PLExponent, self.dist_mid_tx_rx1)
         FSPLDir2 = self.generateFSPLDir(self.PLExponent, self.dist_mid_tx_rx2)
@@ -167,8 +167,8 @@ class MyRacianFading(typicalCommSym):
 
         # % rx1_arr = obj.generatePositionRxArr(obj.lr1, obj.theta_r1);
         tx_arr = self.generatePositionTxArr(self.lt)
-        rx_arr1 = self.generatePositionRxArr(self.lr1)
-        rx_arr2 = self.generatePositionRxArr(self.lr2)
+        rx_arr1 = self.generatePositionRxArr(self.theta_r1)
+        rx_arr2 = self.generatePositionRxArr(self.theta_r2)
         ris_arr = self.generatePositionRISArr()
 
         # % rx2_arr = obj.generatePositionRxArr(obj.lr2, obj.theta_r2);

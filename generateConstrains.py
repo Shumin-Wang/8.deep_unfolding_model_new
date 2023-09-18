@@ -116,7 +116,7 @@ def generate_constrains_mid(F1, F2, dd, D2, Nr, Nris, K, ob_down, ob_up,U,lambda
 def generate_constrains(theta_r1, theta_r2, F1, F2, dd, D2,  Nr, Nris, K, U,lambdaA, rx_antenna_gain):
     U = U.numpy()
     T_list1 = generate_constrains_mid(F1, F2, dd, D2, Nr, Nris, K, -89, theta_r1-10,U, lambdaA, rx_antenna_gain)
-    T_list3 = generate_constrains_mid(F1, F2, dd, D2, Nr, Nris, K, theta_r1+10, 89,U,lambdaA, rx_antenna_gain)
+    T_list3 = generate_constrains_mid(F1, F2, dd, D2, Nr, Nris, K, theta_r2+10, 89,U,lambdaA, rx_antenna_gain)
     if  theta_r2 - theta_r1 >= 20:
             T_list2 = generate_constrains_mid(F1, F2, dd, D2, Nr, Nris, K, theta_r1+10, theta_r2-10,U,lambdaA, rx_antenna_gain)
             T_list = np.concatenate([T_list1, T_list2, T_list3], 0)

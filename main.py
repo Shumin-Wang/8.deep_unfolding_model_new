@@ -10,8 +10,9 @@ import generalState
 import MyFadingChannel
 
 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+# device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 device_cpu = torch.device('cpu')
+device = torch.device("cpu")
 print(torch.version.cuda)
 print(torch.cuda.is_available())
 
@@ -27,7 +28,7 @@ K = 100000
 f = 27e9
 dist_ris = 20
 
-threshold = -110
+threshold = -120
 noise = 10**(-120/10)
 
 lambdaA = 3e8 / f
@@ -183,7 +184,7 @@ class DNN_Model(torch.nn.Module):
 
         theta = theta/abs(theta)
 
-        # theta = self.ProjectRIS(F1,F2,theta,sample2,U)
+        theta = self.ProjectRIS(F1,F2,theta,sample2,U)
 
         theta1[:, 0:100] = torch.real(theta)
         theta1[:, 100:200] = torch.imag(theta)
@@ -196,7 +197,7 @@ class DNN_Model(torch.nn.Module):
 
             threshold_w = (10 ** ((self.threshold) / 10)) / 1000
 
-            lt = self.dist_ris / torch.sin(torch.pi*sample2[i,0]/180)
+            # lt = self.dist_ris / torch.sin(torch.pi*sample2[i,0]/180)
             D2 = self.D - self.dist_ris
             T_list = generateConstrains.generate_constrains(sample2[i,1], sample2[i,2], torch.reshape(F1[i,:,:],[self.N_t,self.N_r]), torch.reshape(F2[i,:,:],[self.N_t,self.N_r]), 0.5, D2, self.N_r, int(self.N_ris/2), self.K, U[i,:,:], lambdaA, rx_antenna_gain)
             CCC = torch.conj(theta[i,:,None]).T @ (T_list / threshold_w) @ theta[i,:,None]
@@ -208,7 +209,7 @@ class DNN_Model(torch.nn.Module):
         return theta_hat
 
 
-# loss function
+# # loss function
 # class MyLossFunction(torch.nn.Module):
 #     def __init__(self, noise, N_t, N_r):
 #         super(MyLossFunction, self).__init__()
@@ -406,7 +407,7 @@ if __name__ == '__main__':
     x_train_original = x_train_original.to(device)
 
     # optimizer
-    optimizer = torch.optim.Adagrad(my_model.parameters(), lr=0.0005)
+    optimizer = torch.optim.Adagrad(my_model.parameters(), lr=0.001)
 
     batch_size = 32
 
